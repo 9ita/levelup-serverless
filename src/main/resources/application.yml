@@ -7,6 +7,3 @@ logging:
 spring:
   application:
     name: elink-levelup-serverless
-
-jwt:
-  secret: vG3x5+zA7tYb8qQ/Es+Rmj3UeoV6iCkYlP8ZhN2Kcqw=
