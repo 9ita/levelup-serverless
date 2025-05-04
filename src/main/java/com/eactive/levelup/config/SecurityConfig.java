@@ -3,18 +3,18 @@ package com.eactive.levelup.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -25,25 +25,27 @@ public class SecurityConfig {
     private final LoginFailureHandler loginFailureHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain chain(HttpSecurity http, JwtFilter jwt) throws Exception {
         http
                 // ── 무상태 설정 ─────────────────────────────────────────────
                 .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 생성 금지
-                .requestCache(rc -> rc.disable())                               // Saved-request 캐시 제거
+                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .requestCache(RequestCacheConfigurer::disable)
 
                 // ── 인가 규칙 ───────────────────────────────────────────────
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**").permitAll()
-                        .requestMatchers("/","/login","/login/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/tabulator/**").permitAll()
+                        .requestMatchers("/", "/login", "/login/**", "/signup").permitAll()
+                        .requestMatchers("/auth/signup", "/auth/login").permitAll()
+                        .requestMatchers("/error", "/error/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
 
-                // ── 임시 인증 방식 (JWT 도입 전까지) ──────────────────────────
-                .httpBasic(Customizer.withDefaults())   // curl -u user:pass 식 Basic 인증
+                // ── 로그인 설정 ─────────────────────────────────────────────
+                .addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class)
 
                 // ── CSRF·헤더 ───────────────────────────────────────────────
-                .csrf(csrf -> csrf.disable())           // 브라우저 세션이 없으므로 완전 비활성
+                .csrf(AbstractHttpConfigurer::disable)
                 .headers(h -> h.frameOptions(
                         HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 
@@ -54,17 +56,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails user = User.withUsername("admin")
-                .password(encoder.encode("pass1234"))
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
         return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
+    }
+
 }
 

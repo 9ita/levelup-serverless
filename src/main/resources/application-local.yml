@@ -1,0 +1,9 @@
+cloud:
+  aws:
+    credentials:
+      access-key: dummy
+      secret-key: dummy
+    region:
+      static: ap-northeast-2
+    dynamodb:
+      endpoint: http://localhost:8000

@@ -11,40 +11,41 @@
         <div class="row">
           <div class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 start-0 text-center justify-content-center flex-column">
             <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center"
-                 th:style="|background-image: url('@{/images/solution-image.jpg}'); background-size: cover;|">
+                 th:style="|background-image: url('@{/images/solution-image.jpg}'); background-size: cover; background-position: center;|">
             </div>
           </div>
           <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column ms-auto me-auto ms-lg-auto me-lg-5">
             <div class="card card-plain">
               <div class="card-header">
                 <h4 class="font-weight-bolder">로그인</h4>
-                <p class="mb-0">DATA AID UI 로그인</p>
               </div>
               <div class="card-body">
-                <form th:action="@{/login}" role="form" method="post">
+                <form th:action="@{/auth/login}" role="form" method="post">
                   <div class="input-group input-group-outline mb-3 d-flex">
-                    <label for="username" class="form-label col-2">ID</label>
-                    <input type="text" id="username" name="username" class="form-control" autofocus
-                           required>
+                    <label for="email" class="form-label col-2">email</label>
+                    <input type="email" id="email" name="email" class="form-control" autofocus required>
                   </div>
                   <div class="input-group input-group-outline mb-3 d-flex">
                     <label for="password" class="form-label col-2">PW</label>
-                    <input type="password" id="password" name="password" class="form-control"
-                           required>
+                    <input type="password" id="password" name="password" class="form-control" required>
                   </div>
-                  <div th:if="${param.error}" class="mt-3">
-                    <p class="text-danger">아이디 또는 비밀번호가 잘못되었습니다.</p>
+                  <div th:if="${param.notFound}" class="mt-3">
+                    <p class="text-danger">존재하지 않는 사용자입니다. 회원가입 후 이용해주세요.</p>
                   </div>
-                  <div th:if="${param.locked}" class="mt-3">
-                    <p class="text-danger">계정이 잠겼습니다. 관리자에게 문의하세요.</p>
+                  <div th:if="${param.badCredentials}" class="mt-3">
+                    <p class="text-danger">아이디 혹은 비밀번호가 일치하지 않습니다.</p>
                   </div>
-                  <div th:if="${param.logout}" class="mt-3">
-                    <p class="text-success">로그아웃되었습니다.</p>
+                  <div th:if="${param.disabled}" class="mt-3">
+                    <p class="text-danger">비활성화된 계정입니다. 관리자에게 문의하세요.</p>
                   </div>
                   <div class="text-center">
                     <button type="submit"
                             class="btn btn-lg bg-gradient-dark btn-lg w-100 mt-4 mb-0">Login
                     </button>
+                  </div>
+                  <div class="text-center">
+                    <span class="text-secondary">아직 계정이 없으신가요? </span>
+                    <a th:href="@{/signup}" class="text-primary font-weight-bold">계정 생성</a>
                   </div>
                 </form>
               </div>

@@ -47,6 +47,18 @@
             <version>${aws.lambda.events.version}</version>
         </dependency>
 
+        <!-- DynamoDB 기본 클라이언트 -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb</artifactId>
+        </dependency>
+
+        <!-- Enhanced Client (DynamoDbBean, DynamoDbTable 등) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb-enhanced</artifactId>
+        </dependency>
+
         <!-- Spring Boot 기본 Starter -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -64,6 +76,29 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- API (컴파일 타임) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+
+        <!-- 구현체 + 시그니처 알고리즘 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- JSON 직렬화(Jackson) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- MapStruct + Lombok -->
@@ -107,6 +142,14 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- AWS SDK v2 전체 버전을 한 번에 맞추는 BOM -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.31.35</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

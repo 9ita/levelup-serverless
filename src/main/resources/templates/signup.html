@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: commonHead(pageTitle='[개발] DATA AID - Sign-up')}">
+<body>
+<main class="main-content mt-0">
+  <section>
+    <div class="page-header min-vh-100">
+      <div class="container">
+        <div class="row">
+          <!-- 좌측 배경 (로그인과 동일) -->
+          <div class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 start-0 text-center justify-content-center flex-column">
+            <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center"
+                 th:style="|background-image: url('@{/images/solution-image.jpg}'); background-size: cover; background-position: center;|">
+            </div>
+          </div>
+
+          <!-- 회원가입 카드 -->
+          <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column ms-auto me-auto ms-lg-auto me-lg-5">
+            <div class="card card-plain">
+              <div class="card-header">
+                <h4 class="font-weight-bolder">계정 생성</h4>
+              </div>
+              <div class="card-body">
+                <form id="signupForm"
+                      th:data-signup="@{/auth/signup}">
+                  <!-- 이메일 -->
+                  <div class="input-group input-group-outline mb-3 d-flex">
+                    <label for="email" class="form-label col-3">email</label>
+                    <input type="email" id="email" name="email" class="form-control" autofocus required>
+                  </div>
+                  <!-- 이름 -->
+                  <div class="input-group input-group-outline mb-3 d-flex">
+                    <label for="name" class="form-label col-3">name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                  </div>
+                  <!-- 비밀번호 -->
+                  <div class="input-group input-group-outline mb-3 d-flex">
+                    <label for="password" class="form-label col-3">PW</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                  </div>
+                  <!-- 비밀번호 확인 -->
+                  <div class="input-group input-group-outline mb-3 d-flex">
+                    <label for="confirm" class="form-label col-3">PW 확인</label>
+                    <input type="password" id="confirm" name="confirm" class="form-control" required>
+                  </div>
+
+                  <!-- 서버 측 에러 메시지 -->
+                  <div id="errorBox" class="mt-2 text-danger" th:if="${param.error}" th:text="${param.error}"></div>
+
+                  <div class="text-center">
+                    <button type="submit" class="btn btn-lg bg-gradient-dark w-100 mt-4 mb-2">Sign up</button>
+                  </div>
+                  <!-- 돌아가기 링크 -->
+                  <div class="text-center">
+                    <a th:href="@{/login}" class="text-secondary">이미 계정이 있으신가요? 로그인</a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div><!-- /col -->
+        </div><!-- /row -->
+      </div><!-- /container -->
+    </div>
+  </section>
+</main>
+
+<script>
+  // (1) URL을 간단히 문자열로
+  const form = document.getElementById('signupForm');
+  const SIGNUP_URL = form.dataset.signup;
+
+  // (2) JSON 전송
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const payload = {
+      email: f.email.value,
+      name: f.name.value,
+      password: f.password.value,
+      confirm: f.confirm.value
+    };
+
+    try {
+      const res = await fetch(SIGNUP_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        window.location.assign(LOGIN_URL);   // 성공 ⇒ 로그인 페이지로
+      } else {
+        const msg = await res.text();
+        document.getElementById('errorBox').textContent =
+            msg || '회원가입에 실패했습니다.';
+      }
+    } catch (err) {
+      document.getElementById('errorBox').textContent =
+          '서버와 통신할 수 없습니다.';
+    }
+  });
+</script>
+</body>
+</html>
