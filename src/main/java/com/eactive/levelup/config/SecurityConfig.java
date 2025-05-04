@@ -3,12 +3,12 @@ package com.eactive.levelup.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,22 +27,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorize -> authorize
+                // ── 무상태 설정 ─────────────────────────────────────────────
+                .sessionManagement(sm ->
+                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 생성 금지
+                .requestCache(rc -> rc.disable())                               // Saved-request 캐시 제거
+
+                // ── 인가 규칙 ───────────────────────────────────────────────
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**").permitAll()
-                        .requestMatchers("/login", "/login/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .successHandler(loginSuccessHandler)
-                        .failureHandler(loginFailureHandler)
-                        .defaultSuccessUrl("/dashboard", true)
-                        .permitAll()
-                )
-                .logout(LogoutConfigurer::permitAll)
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/**"))
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+                        .requestMatchers("/","/login","/login/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
+                        .anyRequest().authenticated())
+
+                // ── 임시 인증 방식 (JWT 도입 전까지) ──────────────────────────
+                .httpBasic(Customizer.withDefaults())   // curl -u user:pass 식 Basic 인증
+
+                // ── CSRF·헤더 ───────────────────────────────────────────────
+                .csrf(csrf -> csrf.disable())           // 브라우저 세션이 없으므로 완전 비활성
+                .headers(h -> h.frameOptions(
+                        HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+
+                // ── 로그아웃은 의미 없으므로 비활성(필요 시 enable) ─────────
+                .logout(LogoutConfigurer::disable);
 
         return http.build();
     }
