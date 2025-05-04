@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layouts/layout.html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>에러 발생</title>
+</head>
+<body layout:fragment="content" class="g-sidenav-show bg-gray-100">
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1>에러가 발생했습니다</h1>
+            <hr/>
+            <!-- 상태 코드 (예: 404, 500) -->
+            <p>
+                <strong>Status:</strong>
+                <span th:text="${status}">N/A</span>
+            </p>
+            <!-- 상태 코드에 대한 설명 (예: "Not Found", "Internal Server Error") -->
+            <p>
+                <strong>Error:</strong>
+                <span th:text="${error}">N/A</span>
+            </p>
+            <!-- 구체적인 예외 메시지 -->
+            <p>
+                <strong>Message:</strong>
+                <span th:text="${message}">N/A</span>
+            </p>
+            <!-- 요청 경로 -->
+            <p>
+                <strong>Path:</strong>
+                <span th:text="${path}">N/A</span>
+            </p>
+            <br/>
+            <!-- 홈(또는 다른 경로)으로 돌아가기 버튼 -->
+            <a th:href="@{/}" class="btn btn-primary">홈으로</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

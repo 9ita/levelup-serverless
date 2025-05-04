@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <title>공통 메뉴</title>
+</head>
+<body>
+<th:block th:fragment="sidebar">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main">
+    <div class="sidenav-header">
+      <a class="navbar-brand px-4 py-3 m-0"
+         th:href="@{/}"
+         target="_blank">
+        <img th:src="@{/assets/img/logo-ct-dark.png}"
+             class="navbar-brand-img"
+             width="26"
+             height="26"
+             alt="main_logo">
+        <span class="ms-1 text-sm text-dark">DATA AID</span>
+      </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+
+    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+
+        <!-- Dashboard -->
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'dashboard' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/dashboard}">
+            <i class="material-symbols-rounded opacity-5">dashboard</i>
+            <span class="nav-link-text ms-1">Dashboard</span>
+          </a>
+        </li>
+
+        <!-- Agent -->
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('MANAGER')">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-primary font-weight-bolder opacity-10">Agent</h6>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'agent' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/agent}">
+            <i class="material-symbols-rounded opacity-5">device_hub</i>
+            <span class="nav-link-text ms-1">Agent</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'dbConnector' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/dbConnector}">
+            <i class="material-symbols-rounded opacity-5">dns</i>
+            <span class="nav-link-text ms-1">DB Connector</span>
+          </a>
+        </li>
+
+        <!-- Authentication -->
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('MANAGER')">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-primary font-weight-bolder opacity-10">Authentication</h6>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'user' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/user}">
+            <i class="material-symbols-rounded opacity-5">person</i>
+            <span class="nav-link-text ms-1">User</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'group' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/group}">
+            <i class="material-symbols-rounded opacity-5">group</i>
+            <span class="nav-link-text ms-1">Group</span>
+          </a>
+        </li>
+
+        <!-- Transform -->
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('MANAGER')">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-primary font-weight-bolder opacity-10">Transform</h6>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'rule' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/rule}">
+            <i class="material-symbols-rounded opacity-5">gavel</i>
+            <span class="nav-link-text ms-1">Rule</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'meta' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/meta}">
+            <i class="material-symbols-rounded opacity-5">article</i>
+            <span class="nav-link-text ms-1">Meta</span>
+          </a>
+        </li>
+
+        <!-- Job -->
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-primary font-weight-bolder opacity-10">Job</h6>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'job' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/job}">
+            <i class="material-symbols-rounded opacity-5">stacks</i>
+            <span class="nav-link-text ms-1">Job</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'schedule' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/schedule}">
+            <i class="material-symbols-rounded opacity-5">calendar_month</i>
+            <span class="nav-link-text ms-1">Schedule</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'runningLog' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/runningLog}">
+            <i class="material-symbols-rounded opacity-5">receipt_long</i>
+            <span class="nav-link-text ms-1">Running Log</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'resultsLog' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/resultsLog}">
+            <i class="material-symbols-rounded opacity-5">patient_list</i>
+            <span class="nav-link-text ms-1">Results Log</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'exceptTime' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/exceptTime}">
+            <i class="material-symbols-rounded opacity-5">timer_off</i>
+            <span class="nav-link-text ms-1">Except Time</span>
+          </a>
+        </li>
+
+        <!-- Tool -->
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('MANAGER')">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-primary font-weight-bolder opacity-10">Tool</h6>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'dataView' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/dataView}">
+            <i class="material-symbols-rounded opacity-5">visibility</i>
+            <span class="nav-link-text ms-1">Data View</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'dataInspection' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/dataInspection}">
+            <i class="material-symbols-rounded opacity-5">search</i>
+            <span class="nav-link-text ms-1">Data Inspection</span>
+          </a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'reportManager' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/reportManager}">
+            <i class="material-symbols-rounded opacity-5">analytics</i>
+            <span class="nav-link-text ms-1">Report Manager</span>
+          </a>
+        </li>
+
+        <!-- Approval -->
+        <li class="nav-item mt-3" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-primary font-weight-bolder opacity-10">Approval</h6>
+        </li>
+        <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'USER')">
+          <a class="nav-link"
+             th:classappend="${pageId} == 'approval' ? ' active bg-gradient-dark text-white' : ' text-dark'"
+             th:href="@{/approval}">
+            <i class="material-symbols-rounded opacity-5">assignment_turned_in</i>
+            <span class="nav-link-text ms-1">Approval</span>
+          </a>
+        </li>
+
+      </ul>
+    </div>
+
+    <div class="sidenav-footer position-absolute w-100 bottom-0">
+      <div class="mx-3">
+        <!-- 로그아웃 -->
+        <!-- href="#" 로 두고, onclick 이벤트로 폼을 제출함 -->
+        <a class="btn btn-outline-dark mt-4 w-100"
+           th:classappend="${pageId} == 'logout' ? ' active bg-gradient-dark text-white' : ''"
+           href="#"
+           onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+          로그아웃
+        </a>
+
+        <!-- 실제 로그아웃 경로는 POST 전송으로 처리 -->
+        <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;">
+        </form>
+      </div>
+    </div>
+
+  </aside>
+</th:block>
+</body>
+</html>
