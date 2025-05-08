@@ -9,6 +9,8 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class SignupService {
@@ -23,8 +25,7 @@ public class SignupService {
     public void signup(String email, String rawPassword, String name) {
 
         // 1) 중복 이메일 체크
-        boolean exists = table().getItem(Key.builder()
-                                  .partitionValue(email).build()) != null;
+        boolean exists = table().getItem(Key.builder().partitionValue(email).build()) != null;
         if (exists) throw new IllegalStateException("이미 가입된 이메일입니다.");
 
         // 2) 해시 생성
@@ -35,6 +36,12 @@ public class SignupService {
         entity.setEmail(email);
         entity.setPasswordHash(hash);
         entity.setName(name);
+
+        // 4) 기본 역할 부여
+        Set<String> roles = entity.getRoles();
+        if (roles == null || roles.isEmpty()) {
+            entity.setRoles(Set.of("USER"));
+        }
 
         table().putItem(entity);
     }

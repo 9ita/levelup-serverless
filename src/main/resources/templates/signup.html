@@ -22,7 +22,8 @@
               </div>
               <div class="card-body">
                 <form id="signupForm"
-                      th:data-signup="@{/auth/signup}">
+                      th:data-signup="@{/auth/signup}"
+                      th:data-login="@{/login}">
                   <!-- 이메일 -->
                   <div class="input-group input-group-outline mb-3 d-flex">
                     <label for="email" class="form-label col-3">email</label>
@@ -68,6 +69,7 @@
   // (1) URL을 간단히 문자열로
   const form = document.getElementById('signupForm');
   const SIGNUP_URL = form.dataset.signup;
+  const LOGIN_URL = form.dataset.login;
 
   // (2) JSON 전송
   document.getElementById('signupForm').addEventListener('submit', async (e) => {
@@ -88,15 +90,14 @@
       });
 
       if (res.ok) {
+        alert('회원가입이 완료되었습니다. 로그인 해주세요.');
         window.location.assign(LOGIN_URL);   // 성공 ⇒ 로그인 페이지로
       } else {
         const msg = await res.text();
-        document.getElementById('errorBox').textContent =
-            msg || '회원가입에 실패했습니다.';
+        document.getElementById('errorBox').textContent = msg || '회원가입에 실패했습니다.';
       }
     } catch (err) {
-      document.getElementById('errorBox').textContent =
-          '서버와 통신할 수 없습니다.';
+      document.getElementById('errorBox').textContent = '서버와 통신할 수 없습니다.';
     }
   });
 </script>

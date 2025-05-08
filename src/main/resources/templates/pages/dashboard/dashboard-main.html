@@ -1,227 +1,160 @@
 <!DOCTYPE html>
 <html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layouts/layout.html">
 
 <head>
   <meta charset="UTF-8"/>
+  <title>Agent Main</title>
 </head>
 
 <body layout:fragment="content" class="g-sidenav-show bg-gray-100">
 
-<!-- 컨테이너 시작 -->
 <div class="container-fluid py-2">
-  <div class="row mb-4">
-    <!-- 좌측 Job 목록 카드 -->
-    <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
+  <!-- 1) 상단 영역: 타이틀 + 신규 Agent 생성 버튼 -->
+  <div class="row">
+    <div class="col text-end">
+      <!-- 신규 Agent 생성 버튼 -->
+      <!-- 실제 저장 폼으로 이동할 경로(예: /agent/form)로 수정해 주세요 -->
+      <a th:href="@{/agent/form}" class="btn btn-primary">
+        신규 Agent 생성
+      </a>
+    </div>
+  </div>
+
+  <!-- 2) 검색 폼 -->
+  <div class="row">
+    <div class="col-12 mb-3">
       <div class="card">
-        <div class="card-body">
-          <div class="table-responsive">
-            <div id="job-table"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 우측 Util Area -->
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100">
-        <div class="card-header pb-0">
-
-        </div>
-        <div class="card-body p-3">
-
-        </div>
-      </div>
-    </div>
-  </div> <!-- /.row -->
-
-  <ul class="nav nav-tabs" id="frmTaskTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active"
-              id="running-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#running"
-              type="button" role="tab"
-              aria-controls="running"
-              aria-selected="true">
-        Running Log
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link"
-              id="results-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#results"
-              type="button" role="tab"
-              aria-controls="results"
-              aria-selected="false">
-        Results Log
-      </button>
-    </li>
-  </ul>
-
-  <div class="tab-content w-100 input-group input-group-outline">
-
-    <div class="tab-pane w-100 fade show active" id="running" role="tabpanel" aria-labelledby="export-tab">
-      <div class="card mt-3">
-        <div class="card-body">
-          <div class="table-responsive">
-            <div id="running-log-table"></div>
+        <!-- 카드 바디 -->
+        <div class="card-body px-3 pb-2">
+          <!-- 입력 필드/검색 영역 -->
+          <div class="row g-3 align-items-center">
+            <!-- agentName -->
+            <div class="col d-flex input-group input-group-static">
+              <label for="agentName">Agent Name</label>
+              <input type="text" name="agentName" id="agentName" class="form-control"/>
+            </div>
+            <!-- hostName -->
+            <div class="col d-flex input-group input-group-static">
+              <label for="hostName">Host Name</label>
+              <input type="text" name="hostName" id="hostName" class="form-control"/>
+            </div>
+            <!-- 검색 버튼 -->
+            <div class="col-auto d-flex align-items-center">
+              <button type="button" class="btn btn-primary" onclick="fetchAgentData()">Search</button>
+            </div>
           </div>
         </div><!-- /.card-body -->
       </div><!-- /.card -->
-    </div><!-- /.tab-pane Export -->
+    </div><!-- /.col-12 -->
+  </div><!-- /.row -->
 
-    <div class="tab-pane w-100 fade" id="results" role="tabpanel" aria-labelledby="convert-tab">
-      <div class="card mt-3">
-        <div class="card-body">
-          <form id="searchCondition_resultsLog">
-            <div class="row g-3 align-items-center">
-              <div class="col">
-                <div class="input-group input-group-sm mb-2">
-                  <label class="input-group-text" for="startTime" style="width: 130px;">Start Date</label>
-                  <input type="date" name="startTime" id="startTime" class="form-control"/>
-                </div>
-              </div>
-              <div class="col">
-                <div class="input-group input-group-sm mb-2">
-                  <label class="input-group-text" for="endTime" style="width: 130px;">End Date</label>
-                  <input type="date" name="endTime" id="endTime" class="form-control"/>
-                </div>
-              </div>
-              <div class="col-auto d-flex align-items-center">
-                <button type="button" class="btn btn-primary" id="searchBtn_resultsLog">Search</button>
-              </div>
-            </div>
-          </form>
-          <div class="table-responsive">
-            <div id="results-log-table"></div>
-          </div>
+  <!-- 3) Agent List 테이블 (Tabulator) -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header pb-2">
+          <h6>Agent 목록</h6>
         </div>
-      </div><!-- /.card -->
-    </div><!-- /.tab-pane Convert -->
-
+        <div class="card-body px-3 pb-2 py-0">
+          <div id="agent-table"></div>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-</div> <!-- /.container-fluid -->
-
-<div th:replace="~{pages/job/modal/job-main-modals :: jobModalFragment}"></div>
-
-<script th:src="@{/scripts/job-main-script.js}"></script>
-
+<!-- Agent List 스크립트 -->
 <script>
+  // 페이지 로드 시 or 검색 Form 제출 시 호출되는 함수
+  function fetchAgentData() {
+    // 검색 파라미터 추출
+    const agentName = document.getElementById('agentName').value;
+    const hostName = document.getElementById('hostName').value;
 
+    // 필요에 따라 파라미터 구성
+    let requestBody = {
+      agentName: agentName,
+      hostName: hostName
+    };
+
+    // 실제 API 경로(예: /agent/list)로 변경해 주세요
+    fetch("/agent/list", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(requestBody)
+    })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("HTTP error, status = " + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // data 구조가 { data: [...], ... } 형태라고 가정
+          let tableData = data.data;
+
+          // 이미 Tabulator 인스턴스가 있다면 갱신, 없으면 신규 생성
+          if (window.agentTable) {
+            // 기존 테이블이 존재하면 새 데이터로 갱신
+            window.agentTable.replaceData(tableData);
+          } else {
+            // 최초 생성 시
+            window.agentTable = new Tabulator("#agent-table", {
+              data: tableData,
+              layout: "fitColumns",
+              dataTree: false,
+              height: "500px",
+              columns: [
+                {title: "Agent Name", field: "agentName", widthGrow: 2},
+                {title: "Host Name", field: "hostName", align: "center", widthGrow: 2},
+                {title: "Port", field: "port", align: "center"},
+                {title: "Status", field: "status", align: "center"},
+                {title: "Remark", field: "remark", widthGrow: 3}
+              ],
+              // (1) 우클릭(컨텍스트 메뉴) 예시
+              rowContextMenu: [
+                {
+                  label: `<i class="material-symbols-rounded">edit</i> Agent Update`,
+                  action: function (e, row) {
+                    e.preventDefault(); // 기본 우클릭 메뉴 방지
+                    const rowData = row.getData();
+                    alert("Agent Update: " + rowData.agentName);
+                    // 여기서 수정 폼 이동 or 팝업 로직 작성
+                  }
+                },
+                {
+                  label: `<i class="material-symbols-rounded">delete</i> Agent Delete`,
+                  action: function (e, row) {
+                    e.preventDefault();
+                    const rowData = row.getData();
+                    alert("Agent Delete: " + rowData.agentName);
+                    // 삭제 로직 수행
+                  }
+                },
+                {separator: true},
+                {
+                  label: `<i class="material-symbols-rounded">refresh</i> Refresh (재조회)`,
+                  action: function (e, row) {
+                    e.preventDefault();
+                    fetchAgentData(); // 화면 갱신/재조회
+                  }
+                }
+              ],
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching agent list:", error);
+        });
+  }
+
+  // 페이지 로드 시 기본 데이터 조회
   document.addEventListener("DOMContentLoaded", function () {
-
-    // Grid Main
-    window.grid = new Tabulator("#job-table", {
-      ajaxURL: "/api/v1/jobs/grid/tree",
-      ajaxConfig: "GET",
-      layout: "fitColumns",
-      rowHeight: 24,
-      ajaxResponse: function (url, params, response) {
-        return response.data;
-      },
-      dataTree: true,
-      dataTreeStartExpanded: true,
-      height: "330px",
-      columnDefaults: {
-        headerSort: false,        // 기본은 정렬 비활성화
-      },
-      initialSort: [
-        {column: "jobName",  dir: "asc"},
-        {column: "userName", dir: "asc"},
-      ],
-      columns: [
-        {title: "Job ID", field: "id", visible: false},
-        {title: "Job Name", field: "jobName", headerSort: true,  sorter: "string"},
-        {title: "Job Type", field: "jobType", hozAlign: "center"},
-        {title: "User Name", field: "userName", hozAlign: "center", headerSort: true,  sorter: "string"},
-        {title: "Comment", field: "comment", hozAlign: "center"}
-      ],
-      rowContextMenu: jobRowContextMenu()
-    });
-
-    window.grid.on("rowDblClick", function (e, row) {
-      const rowData = row.getData();
-      window.location.href = "/job/" + rowData.id;
-    });
-
-    // Running
-    window.grid_running = new Tabulator("#running-log-table", {
-      ajaxURL: "/api/v1/runningLogs",
-      ajaxConfig: "GET",
-      layout: "fitColumns",
-      height: "350px",
-      rowHeight: 24,
-      columnDefaults: {
-        headerSort: false,
-      },
-      columns: [
-        {title: "No.", field: "id", hozAlign: "right", width: 50},
-        {title: "JOB명", field: "jobName", hozAlign: "left"},
-        {title: "내용", field: "msg", hozAlign: "left"},
-        {title: "logCd", field: "logCd", visible:false},
-        {title: "결과", field: "logCodeMsg", hozAlign: "center"},
-        {title: "시간", field: "logTs", hozAlign: "center"},
-        {title: "사용자", field: "userName", hozAlign: "center"},
-        {title: "실행 타입", field: "execTypeCd", hozAlign: "left"},
-      ],
-      rowFormatter: function (row) {
-        const { logCd } = row.getData();
-        if (Number(logCd) === 200) {
-          row.getElement().style.backgroundColor = "#4afa5a";
-        }
-      },
-    });
-
-    // date init
-    const startInput = document.getElementById("startTime");
-    const endInput = document.getElementById("endTime");
-    const today = new Date();
-    const priorWeek = new Date().setDate(today.getDate() - 7);
-    startInput.value = new Date(priorWeek).toISOString().split("T")[0];
-    endInput.value = today.toISOString().split("T")[0];
-
-    let params = getUrlSearchCondition('#searchCondition_resultsLog');
-
-    window.grid_results = new Tabulator("#results-log-table", {
-      ajaxURL: `/api/v1/resultsLogs?${params}`,
-      ajaxConfig: "GET",
-      layout: "fitColumns",
-      height: "320px",
-      rowHeight: 24,
-      columnDefaults: {
-        headerSort: false,
-      },
-      columns: [
-        {title: "Schedule / Job Name", field: "jobName", hozAlign: "left"},
-        {title: "Status", field: "logState", hozAlign: "center"},
-        {title: "Run Time", field: "runtime", hozAlign: "center"},
-        {title: "Start Time", field: "minTime", hozAlign: "center"},
-        {title: "End Time", field: "maxTime", hozAlign: "center"},
-        {title: "User", field: "userName", hozAlign: "center"},
-        {title: "Reason", field: "runReason", hozAlign: "center"}
-      ]
-    });
-
-    document.getElementById('searchBtn_job').addEventListener('click', function (e) {
-      bootstrap.Modal.getInstance(document.getElementById('searchModal')).hide();
-      searchStandard('#searchCondition_job', window.grid, '/api/v1/jobs/grid/tree');
-    });
-
-    document.getElementById('searchBtn_resultsLog').addEventListener('click', function (e) {
-      searchStandard('#searchCondition_resultsLog', window.grid_results, '/api/v1/resultsLogs');
-    });
-
-    setInterval(() => {
-      window.grid_running.replaceData(`/api/v1/runningLogs`);
-    }, 5000);
-
+    fetchAgentData();
   });
-
 </script>
-
 </body>
 </html>

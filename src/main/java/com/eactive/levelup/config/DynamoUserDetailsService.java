@@ -26,8 +26,11 @@ public class DynamoUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
+        // 1) 이메일로 사용자 조회
         UserEntity e = table().getItem(Key.builder().partitionValue(username).build());
+        // 2) 사용자 없으면 예외 발생
         if (e == null) throw new UsernameNotFoundException(username);
+        // 3) 사용자 비밀번호 해시와 입력 비밀번호 해시 비교
         return User.withUsername(e.getEmail())
                    .password(e.getPasswordHash())
                    .roles(e.getRoles().toArray(new String[0]))
