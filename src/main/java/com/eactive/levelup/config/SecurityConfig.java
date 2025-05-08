@@ -43,7 +43,7 @@ public class SecurityConfig {
                 // ── URL 권한 ─────────────────────────────────────
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/css/**", "/js/**", "/images/**", "/assets/**", "/tabulator/**",
+                                "/css/**", "/js/**", "/images/**", "/assets/**", "/tabulator/**", "/fonts/**",
                                 "/", "/login", "/signup", "/auth/signup",
                                 "/actuator/**",
                                 "/error"
